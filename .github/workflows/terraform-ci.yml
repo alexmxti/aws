@@ -13,21 +13,21 @@ on:
 
 jobs:
   format:
-    runs_on: ubuntu-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: terraform fmt
         run: echo terraform fmt
 
   validate:
-    runs_on: ubuntu-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: terraform validate
         run: echo terraform validate
   
   init:
-    runs_on: ubuntu-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: terraform init
