@@ -11,26 +11,32 @@ on:
   # Allows you to run this workflow manually from the Actions tab (temp)
   workflow_dispatch:
 
+runs_on: &default-runner ubuntu-latest
+
 jobs:
   format:
+    runs_on: *default-runner
     steps:
       - uses: actions/checkout@v4
       - name: terraform fmt
         run: echo terraform fmt
 
   validate:
+    runs_on: *default-runner
     steps:
       - uses: actions/checkout@v4
       - name: terraform validate
         run: echo terraform validate
   
   init:
+    runs_on: *default-runner
     steps:
       - uses: actions/checkout@v4
       - name: terraform init
         run: echo terraform init
 
   plan:
+    runs_on: *default-runner
     steps:
       - uses: actions/checkout@v4
       - name: terraform plan
