@@ -34,8 +34,20 @@ jobs:
         run: echo terraform init
 
   plan:
+    env:
+      AWS_REGION: 'eu-west-2'
+
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout GitHub Repository
       - uses: actions/checkout@v4
-      - name: terraform plan
+
+      - name: Configure AWS Credentials
+      - uses: aws-actions/configure-aws-credentials@v1
+      - with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          
+      - name: Terraform Plan
         run: echo terraform plan
