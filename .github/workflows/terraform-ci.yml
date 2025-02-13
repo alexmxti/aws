@@ -12,28 +12,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  format:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: terraform fmt
-        run: echo terraform fmt
-
-  validate:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: terraform validate
-        run: echo terraform validate
-  
-  init:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: terraform init
-        run: echo terraform init
-
-  plan:
+  terraform:
     env:
       AWS_REGION: 'eu-west-2'
 
@@ -48,6 +27,21 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
-          
-      - name: Terraform Plan
+
+      - name: terraform fmt
+        run: echo terraform fmt
+      
+      - name: terraform validate
+        run: echo terraform validate
+      
+      - name: trivy
+        run: echo trivy config ./
+
+      - name: terraform-docs 
+        run: echo terraform-docs markdown --output-file=README.md
+      
+      - name: terraform init
+        run: echo terraform init
+
+      - name: terraform plan
         run: echo terraform plan
