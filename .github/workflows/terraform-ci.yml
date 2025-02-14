@@ -37,17 +37,12 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.tflint.d/plugins
-          key: ${{ MATRIX.OS }}-tflint-${{ hashFiles('.tflint.hcl') }}
+          key: ${{ matrix.os }}-tflint-${{ hashFiles('.tflint.hcl') }}
   
       - name: Setup TFLint
         uses: terraform-linters/setup-tflint@v4
         with:
           tflint_version: latest
-  
-      - name: Init TFLint
-        run: tflint --init
-        env:
-          GITHUB_TOKEN: ${{ GITHUB.TOKEN }}
   
       - name: TFLint
         run: tflint -f compact
