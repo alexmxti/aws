@@ -21,20 +21,36 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-access-key-id: ${{ SECRETS.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ SECRETS.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ ENV.AWS_REGION }}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: ${{ env.TERRAFORM_VERSION }}     
+          terraform_version: ${{ ENV.TERRAFORM_VERSION }}     
 
       - name: terraform fmt
         run: terraform fmt --check
-
-      - name: tflint
-        run: echo tflint
+        
+      - name: Cache Plugin Dir
+        uses: actions/cache@v4
+        with:
+          path: ~/.tflint.d/plugins
+          key: ${{ MATRIX.OS }}-tflint-${{ hashFiles('.tflint.hcl') }}
+  
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_version: latest
+  
+      - name: Init TFLint
+        run: tflint --init
+        env:
+          GITHUB_TOKEN: ${{ GITHUB.TOKEN }}
+  
+      - name: TFLint
+        run: tflint -f compact
       
       - name: terraform validate
         run: terraform validate
