@@ -3,6 +3,8 @@ name: Terraform CI
 on:
   pull_request:
     branches: [ "main" ]
+    paths: 
+        - "aws-free-tier-config/**/*.tf"
 
   # Allows you to run this workflow manually from the Actions tab (temp)
   workflow_dispatch:
