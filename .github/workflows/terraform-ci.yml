@@ -2,9 +2,9 @@ name: Terraform CI
 
 on:
   pull_request:
-    branches: [ "main" ]
+    branches: "main" 
     paths: 
-        - "aws-free-tier-config/**/*.tf"
+        - "aws-account-management/**/*.tf"
 
   # Allows you to run this workflow manually from the Actions tab (temp)
   workflow_dispatch:
@@ -12,8 +12,8 @@ on:
 jobs:
   terraform:
     env:
-      AWS_REGION: 'eu-west-2'
-      TERRAFORM_VERSION: '1.9.5'
+      AWS_REGION: "eu-west-2"
+      TERRAFORM_VERSION: "1.9.5"
 
     runs-on: ubuntu-latest
     steps:
