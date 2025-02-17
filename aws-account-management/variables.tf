@@ -10,6 +10,12 @@ variable "AWS_ACCESS_KEY_ID" {
   default     = ""
 }
 
+variable "AWS_PROFILE" {
+  description = "AWS Profile Name"
+  type = string
+  default = ""
+}
+
 variable "AWS_REGION" {
   description = "Default Region"
   type        = string
