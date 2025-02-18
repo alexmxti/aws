@@ -9,6 +9,9 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   detect-changes:
     runs-on: ubuntu-latest
@@ -110,6 +113,3 @@ jobs:
           output-file: README.md
           output-method: inject
           git-push: "true"
-          git-push-user-name: "alexmxti"
-          git-push-user-email: "${{ secrets.GITHUB_EMAIL }}"
-    
