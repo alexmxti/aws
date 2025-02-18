@@ -110,5 +110,5 @@ jobs:
           output-file: README.md
           output-method: inject
           git-push: "true"
-          git-push-user-name: alexmxti
+          git-push-user-name: "alexmxti"
     
