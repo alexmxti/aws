@@ -90,7 +90,7 @@ jobs:
         working-directory: ${{ matrix.directory }}
 
       - name: Terraform Plan
-        run: terraform plan
+        run: terraform plan -out=tfplan
         working-directory: ${{ matrix.directory }}
 
       - name: Save Terraform Plan
