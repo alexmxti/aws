@@ -23,7 +23,7 @@ jobs:
       - name: Detect changed directories
         id: filter
         run: |
-          DIRS=$(git diff --name-only origin/${{ github.base_ref }} | grep -E '^(aws-[^/]+)/' | cut -d/ -f1 | sort -u | jq -R -s -c 'split("\n")[:-1]')
+          DIRS=$(git diff --diff-filter=d --name-only origin/${{ github.base_ref }} | grep -E '^(aws-[^/]+)/' | cut -d/ -f1 | sort -u | jq -R -s -c 'split("\n")[:-1]')
           echo "Detected changes in: $DIRS"
           echo "directories=$DIRS" >> $GITHUB_ENV
           echo "directories=$DIRS" >> $GITHUB_OUTPUT
