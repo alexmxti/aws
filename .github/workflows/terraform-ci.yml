@@ -1,4 +1,4 @@
-name: Terraform CI
+name: Terraform CI/CD
 
 on:
   pull_request:
@@ -31,7 +31,7 @@ jobs:
           echo "directories=$DIRS" >> $GITHUB_ENV
           echo "directories=$DIRS" >> $GITHUB_OUTPUT
 
-  terraform:
+  terraform-ci:
     needs: detect-changes
     runs-on: ubuntu-latest
     strategy:
@@ -107,3 +107,38 @@ jobs:
           output-file: README.md
           output-method: inject
           git-push: "true"
+
+  terraform-apply:
+    needs: [detect-changes, terraform-ci]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'  # Only runs when triggered manually   
+    strategy:
+      matrix:
+        directory: ${{ fromJson(needs.detect-changes.outputs.affected_dirs) }}
+    env:
+      AWS_REGION: "eu-west-2"
+      TERRAFORM_VERSION: "1.10.5"
+
+    steps:
+      - name: Checkout GitHub Repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE }}
+          role-session-name: GitHubTerraformDeployment
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ${{ matrix.directory }}
+
+      - name: Terraform Apply (Manual Trigger Only)
+        run: terraform apply -auto-approve
+        working-directory: ${{ matrix.directory }}
