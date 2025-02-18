@@ -109,7 +109,7 @@ jobs:
           git-push: "true"
 
   terraform-apply:
-    needs: [detect-changes, terraform-ci]
+    needs: detect-changes
     runs-on: ubuntu-latest
     if: github.event_name == 'workflow_dispatch'  # Only runs when triggered manually   
     strategy:
