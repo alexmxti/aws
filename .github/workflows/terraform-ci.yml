@@ -70,9 +70,7 @@ jobs:
           tflint_version: latest
 
       - name: TFlint Init
-        run: |
-            tflint --init
-            tflint --plugin-dir ~/.tflint.d/plugins --config ~/.tflint.hcl --init
+        run: tflint --init
 
       - name: Run TFLint
         run: tflint -f compact
