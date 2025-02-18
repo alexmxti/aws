@@ -71,7 +71,6 @@ jobs:
 
       - name: TFlint Init
         run: tflint --init
-        working-directory: ${{ matrix.directory }}
 
       - name: Run TFLint
         run: tflint -f compact
