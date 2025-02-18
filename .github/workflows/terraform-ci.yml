@@ -90,7 +90,7 @@ jobs:
         working-directory: ${{ matrix.directory }}
 
       - name: Terraform Plan
-        run: terraform plan -out=tfplan
+        run: terraform plan
         working-directory: ${{ matrix.directory }}
 
       - name: Trivy Security Scanning
