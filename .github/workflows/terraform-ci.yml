@@ -2,20 +2,40 @@ name: Terraform CI
 
 on:
   pull_request:
-    branches: "main" 
+    branches: ["main"]
     paths: 
-        - "aws-account-management/**/*.tf"
+      - "aws-account-management/**/*.tf"
 
-  # Allows you to run this workflow manually from the Actions tab (temp)
+  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      affected_dirs: ${{ steps.filter.outputs.directories }}
+    steps:
+      - name: Checkout GitHub Repository
+        uses: actions/checkout@v4
+
+      - name: Detect changed directories
+        id: filter
+        run: |
+          DIRS=$(git diff --name-only origin/${{ github.base_ref }} | grep -E '^(aws-[^/]+)/' | cut -d/ -f1 | sort -u | jq -R -s -c 'split("\n")[:-1]')
+          echo "Detected changes in: $DIRS"
+          echo "directories=$DIRS" >> $GITHUB_ENV
+          echo "directories=$DIRS" >> $GITHUB_OUTPUT
+
   terraform:
+    needs: detect-changes
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        directory: ${{ fromJson(needs.detect-changes.outputs.affected_dirs) }}
+    if: ${{ needs.detect-changes.outputs.affected_dirs != '[]' }}
     env:
       AWS_REGION: "eu-west-2"
       TERRAFORM_VERSION: "1.9.5"
-
-    runs-on: ubuntu-latest
     steps:
       - name: Checkout GitHub Repository
         uses: actions/checkout@v4
@@ -23,43 +43,56 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ SECRETS.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ SECRETS.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ ENV.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: ${{ ENV.TERRAFORM_VERSION }}     
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
 
-      - name: terraform fmt
+      - name: Terraform Format
         run: terraform fmt --check
-        
+        working-directory: ${{ matrix.directory }}
+
       - name: Cache Plugin Dir
         uses: actions/cache@v4
         with:
           path: ~/.tflint.d/plugins
-          key: ${{ matrix.os }}-tflint-${{ hashFiles('.tflint.hcl') }}
-  
+          key: ubuntu-tflint-${{ hashFiles('.tflint.hcl') }}
+
       - name: Setup TFLint
         uses: terraform-linters/setup-tflint@v4
         with:
           tflint_version: latest
-  
-      - name: TFLint
+
+      - name: Run TFLint
         run: tflint -f compact
-      
-      - name: terraform validate
+        working-directory: ${{ matrix.directory }}
+
+      - name: Terraform Validate
         run: terraform validate
-      
-      - name: trivy
-        run: echo trivy config ./
+        working-directory: ${{ matrix.directory }}
 
-      - name: terraform-docs 
-        run: echo terraform-docs markdown --output-file=README.md
-      
-      - name: terraform init
-        run: echo terraform init
+      - name: Trivy Security Scan
+        run: trivy config ./
+        working-directory: ${{ matrix.directory }}
 
-      - name: terraform plan
-        run: echo terraform plan
+      - name: Generate Terraform Docs
+        run: terraform-docs markdown --output-file=README.md
+        working-directory: ${{ matrix.directory }}
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ${{ matrix.directory }}
+
+      - name: Terraform Plan
+        run: terraform plan
+        working-directory: ${{ matrix.directory }}
+
+      - name: Save Terraform Plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan-${{ matrix.directory }}
+          path: ${{ matrix.directory }}/tfplan
