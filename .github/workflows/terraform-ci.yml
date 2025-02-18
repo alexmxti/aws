@@ -93,12 +93,6 @@ jobs:
         run: terraform plan -out=tfplan
         working-directory: ${{ matrix.directory }}
 
-      - name: Save Terraform Plan
-        uses: actions/upload-artifact@v4
-        with:
-          name: tfplan-${{ matrix.directory }}
-          path: ${{ matrix.directory }}/tfplan
-
       - name: Trivy Security Scanning
         uses: aquasecurity/trivy-action@0.28.0
         with:
