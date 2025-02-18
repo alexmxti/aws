@@ -37,7 +37,7 @@ jobs:
     if: ${{ needs.detect-changes.outputs.affected_dirs != '[]' }}
     env:
       AWS_REGION: "eu-west-2"
-      TERRAFORM_VERSION: "1.9.5"
+      TERRAFORM_VERSION: "1.10.5"
     steps:
       - name: Checkout GitHub Repository
         uses: actions/checkout@v4
