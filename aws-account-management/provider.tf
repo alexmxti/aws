@@ -10,7 +10,7 @@ terraform {
 provider "aws" {
   access_key = var.AWS_ACCESS_KEY_ID
   secret_key = var.AWS_SECRET_ACCESS_KEY
-  profile = var.AWS_PROFILE
+  profile    = var.AWS_PROFILE
   region     = var.AWS_REGION
 
   assume_role {
