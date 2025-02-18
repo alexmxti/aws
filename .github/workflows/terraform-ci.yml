@@ -94,14 +94,18 @@ jobs:
           name: tfplan-${{ matrix.directory }}
           path: ${{ matrix.directory }}/tfplan
 
-      - name: Run Trivy vulnerability scanner in fs mode
+      - name: Trivy Security Scanning
         uses: aquasecurity/trivy-action@0.28.0
         with:
           scan-type: 'fs'
-          scan-ref: '.'
+          scan-ref: '${{ matrix.directory }}'
           trivy-config: trivy.yaml
-          
-          
-      - name: Generate Terraform Docs
-        run: terraform-docs markdown --output-file=README.md
-        working-directory: ${{ matrix.directory }}
+
+      - name: Generate Docs
+        uses: terraform-docs/gh-actions@v1.3.0
+        with:
+          working-dir: ${{ matrix.directory }}
+          output-file: README.md
+          output-method: inject
+          git-push: "true"
+    
