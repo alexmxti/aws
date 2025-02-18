@@ -42,7 +42,7 @@ jobs:
       - name: Checkout GitHub Repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref }}
+          ref: ${{ github.event.pull_request.head.ref }}
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
