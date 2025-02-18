@@ -111,4 +111,5 @@ jobs:
           output-method: inject
           git-push: "true"
           git-push-user-name: "alexmxti"
+          git-push-user-email: ${{ secrets.GITHUB_EMAIL }}
     
