@@ -76,20 +76,12 @@ jobs:
         run: tflint -f compact
         working-directory: ${{ matrix.directory }}
 
-      - name: Terraform Validate
-        run: terraform validate
-        working-directory: ${{ matrix.directory }}
-
-      - name: Trivy Security Scan
-        run: trivy config ./
-        working-directory: ${{ matrix.directory }}
-
-      - name: Generate Terraform Docs
-        run: terraform-docs markdown --output-file=README.md
-        working-directory: ${{ matrix.directory }}
-
       - name: Terraform Init
         run: terraform init
+        working-directory: ${{ matrix.directory }}
+
+      - name: Terraform Validate
+        run: terraform validate
         working-directory: ${{ matrix.directory }}
 
       - name: Terraform Plan
@@ -101,3 +93,11 @@ jobs:
         with:
           name: tfplan-${{ matrix.directory }}
           path: ${{ matrix.directory }}/tfplan
+
+      - name: Trivy Security Scan
+        run: trivy config ./
+        working-directory: ${{ matrix.directory }}
+          
+      - name: Generate Terraform Docs
+        run: terraform-docs markdown --output-file=README.md
+        working-directory: ${{ matrix.directory }}
