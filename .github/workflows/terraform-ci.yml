@@ -106,12 +106,6 @@ jobs:
           exit-code: '0'
           severity: 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL'
 
-      - name: Show Trivy results file content
-        run: cat trivy-results.sarif
-
-      - name: List Files in Directory
-        run: ls -R .
-
       - name: Trivy Scan Results
         uses: github/codeql-action/upload-sarif@v3
         with:
