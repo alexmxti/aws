@@ -2,15 +2,67 @@ name: Terraform CD
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
+    paths:
+      - "aws-account-management/**/*.tf"
 
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
-  deploy:
+  detect-changes:
     runs-on: ubuntu-latest
+    outputs:
+      changed_dirs: ${{ steps.filter.outputs.directories }}
     steps:
-      - uses: actions/checkout@v4
-      - name: terraform apply
-        run: echo terraform apply --auto-approve
+      - name: Checkout GitHub Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed directories
+        id: filter
+        run: |
+          DIRS=$(git diff --diff-filter=d --name-only origin/main^..origin/main | grep '/' | grep -vE '^\.+' | cut -d/ -f1 | sort -u | jq -R -s -c 'split("\n")[:-1]')
+          echo "Detected changes in: $DIRS"
+          echo "directories=$DIRS" >> $GITHUB_ENV
+          echo "directories=$DIRS" >> $GITHUB_OUTPUT
+
+  terraform-deploy:
+    needs: detect-changes
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        directory: ${{ fromJson(needs.detect-changes.outputs.changed_dirs) }}
+    if: ${{ needs.detect-changes.outputs.changed_dirs != '[]' }}
+    env:
+      AWS_REGION: "eu-west-2"
+      TERRAFORM_VERSION: "1.10.5"
+    steps:
+      - name: Checkout GitHub Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ${{ matrix.directory }}
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+        working-directory: ${{ matrix.directory }}
