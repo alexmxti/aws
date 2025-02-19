@@ -97,7 +97,7 @@ jobs:
         uses: aquasecurity/trivy-action@0.28.0
         with:
           scan-type: 'config'
-          scan-ref: ${{ matrix.directory }}
+          scan-ref: .
           hide-progress: true
           format: 'sarif'
           output: 'trivy-results.sarif'
