@@ -1,4 +1,4 @@
-name: Terraform CI/CD
+name: Terraform CI
 
 on:
   pull_request:
@@ -121,4 +121,3 @@ jobs:
           output-file: README.md
           output-method: inject
           git-push: "true"
-
