@@ -74,7 +74,7 @@ jobs:
         with:
           tflint_version: latest
 
-      - name: TFlint Init
+      - name: TFLint Init
         run: tflint --init
 
       - name: Run TFLint
@@ -93,12 +93,15 @@ jobs:
         run: terraform plan
         working-directory: ${{ matrix.directory }}
 
-      - name: Trivy Security Scanning
+      - name: Trivy IaC Security Scanning
         uses: aquasecurity/trivy-action@0.28.0
         with:
-          scan-type: "fs"
-          scan-ref: "${{ matrix.directory }}"
-          trivy-config: trivy.yaml
+          scan-type: 'config'
+          hide-progress: true
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          exit-code: '1'
+          severity: 'CRITICAL,HIGH,MEDIUM,LOW'
 
       - name: Generate Docs
         uses: terraform-docs/gh-actions@v1.3.0
