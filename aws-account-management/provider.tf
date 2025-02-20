@@ -15,7 +15,7 @@ provider "aws" {
   region     = var.AWS_REGION
 
   assume_role {
-    role_arn = var.AWS_ROLE_ARN
+    role_arn     = var.AWS_ROLE_ARN
     session_name = var.AWS_ROLE_SESSION_NAME
   }
 }
