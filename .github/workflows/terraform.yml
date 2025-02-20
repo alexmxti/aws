@@ -47,7 +47,6 @@ jobs:
         directory: ${{ fromJson(needs.detect-changes.outputs.changed_dirs) }}
     if: ${{ needs.detect-changes.outputs.changed_dirs != '[]' }}
     env:
-      AWS_REGION: "eu-west-2"
       TERRAFORM_VERSION: "1.10.5"
     steps:
       - name: Checkout GitHub Repository
@@ -62,7 +61,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           role-session-name: ${{ secrets.AWS_ROLE_SESSION_NAME }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ secrets.AWS_REGION }}
           
 
       - name: Setup Terraform
