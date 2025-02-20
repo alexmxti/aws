@@ -1,5 +1,0 @@
-AWS Organisations
-AWS Control Tower
-AWS Security Hub
-AWS GuardDuty
-AWS Config
