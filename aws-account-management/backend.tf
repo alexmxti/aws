@@ -1,5 +1,9 @@
 terraform {
-  backend "local" {
-    path = "tfstate/terraform.tfstate"
+  backend "s3" {
+    bucket         = "terraform-state"
+    key            = "state/terraform.tfstate"
+    region         = "eu-west-2"
+    dynamodb_table = "terraform-state-locking"
+    encrypt        = true
   }
 }
