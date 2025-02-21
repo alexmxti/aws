@@ -1,5 +1,8 @@
 name: Terraform CI/CD
 
+env:
+  TERRAFORM_VERSION: "1.10.5"
+
 on:
   pull_request:
     branches: 
@@ -11,9 +14,6 @@ on:
       - main
     paths:
       - aws-account-management/**/*.tf"
-     
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
 
 permissions:
   contents: write
@@ -42,12 +42,11 @@ jobs:
   terraform-ci:
     needs: detect-changes
     runs-on: ubuntu-latest
+    if: ${{ needs.detect-changes.outputs.changed_dirs != '[]' }}
     strategy:
       matrix:
         directory: ${{ fromJson(needs.detect-changes.outputs.changed_dirs) }}
-    if: ${{ needs.detect-changes.outputs.changed_dirs != '[]' }}
-    env:
-      TERRAFORM_VERSION: "1.10.5"
+
     steps:
       - name: Checkout GitHub Repository
         uses: actions/checkout@v4
@@ -128,6 +127,7 @@ jobs:
       matrix:
         directory: ${{ fromJson(needs.detect-changes.outputs.changed_dirs) }}
     if: ${{ needs.detect-changes.outputs.changed_dirs != '[]' }}
+
     steps:
       - name:
         uses: actions/checkout@v4
@@ -147,11 +147,10 @@ jobs:
     needs: detect-changes
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    env:
-      TERRAFORM_VERSION: "1.10.5"
     strategy:
       matrix:
         directory: ${{ fromJson(needs.detect-changes.outputs.changed_dirs) }}
+
     steps:
       - name: Checkout GitHub Repository
         uses: actions/checkout@v4
