@@ -63,7 +63,6 @@ jobs:
           role-session-name: ${{ secrets.AWS_ROLE_SESSION_NAME }}
           aws-region: ${{ secrets.AWS_REGION }}
           
-
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
@@ -129,6 +128,8 @@ jobs:
           output-file: README.md
           output-method: inject
           git-push: "true"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
