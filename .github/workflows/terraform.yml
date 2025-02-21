@@ -121,13 +121,13 @@ jobs:
         with:
           sarif_file: 'trivy-results.sarif'
 
-      - name: Terraform Apply
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: terraform apply -auto-approve -input=false
-
   terraform-docs:
-    needs: terraform-ci
+    needs: [detect-changes, terraform-ci]
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        directory: ${{ fromJson(needs.detect-changes.outputs.changed_dirs) }}
+    if: ${{ needs.detect-changes.outputs.changed_dirs != '[]' }}
     steps:
       - name:
         uses: actions/checkout@v4
@@ -141,3 +141,16 @@ jobs:
           output-file: README.md
           output-method: inject
           git-push: "true"
+
+  # terraform-cd:
+  #   needs: terraform-ci
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Terraform Apply
+  #       uses: actions/checkout@v4
+  #       with:
+  #         ref: ${{ github.event.pull_request.head.ref }}
+
+  #     - name: Terraform Apply
+  #       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+  #       run: terraform apply -auto-approve -input=false
