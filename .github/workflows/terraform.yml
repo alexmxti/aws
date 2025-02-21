@@ -126,7 +126,7 @@ jobs:
         run: terraform apply -auto-approve -input=false
 
   terraform-docs:
-    needs: [detect-changes, terraform-ci]
+    needs: terraform-ci
     runs-on: ubuntu-latest
     steps:
       - name:
