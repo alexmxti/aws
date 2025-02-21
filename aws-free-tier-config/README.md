@@ -1,1 +1,0 @@
-A project that configures and utilises an AWS account using AWS Free Tier services.
