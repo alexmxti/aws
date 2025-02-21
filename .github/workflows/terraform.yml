@@ -141,6 +141,7 @@ jobs:
           output-file: README.md
           output-method: inject
           git-push: "true"
+          git-commit-message: "docs: update README"
 
   terraform-deploy:
     needs: detect-changes
