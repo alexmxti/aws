@@ -122,7 +122,7 @@ jobs:
           sarif_file: 'trivy-results.sarif'
 
   terraform-docs:
-    needs: [detect-changes, terraform-ci]
+    needs: detect-changes
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -142,15 +142,40 @@ jobs:
           output-method: inject
           git-push: "true"
 
-  # terraform-cd:
-  #   needs: terraform-ci
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Terraform Apply
-  #       uses: actions/checkout@v4
-  #       with:
-  #         ref: ${{ github.event.pull_request.head.ref }}
+  terraform-deploy:
+    needs: detect-changes
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    env:
+      TERRAFORM_VERSION: "1.10.5"
+    strategy:
+      matrix:
+        directory: ${{ fromJson(needs.detect-changes.outputs.changed_dirs) }}
+    steps:
+      - name: Checkout GitHub Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-  #     - name: Terraform Apply
-  #       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-  #       run: terraform apply -auto-approve -input=false
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-session-name: ${{ secrets.AWS_ROLE_SESSION_NAME }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ${{ matrix.directory }}
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve -input=false
+        working-directory: ${{ matrix.directory }}
+        
