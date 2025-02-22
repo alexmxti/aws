@@ -68,7 +68,7 @@ jobs:
 
       - name: Terraform Format
         id: fmt
-        run: terraform fmt --check
+        run: terraform fmt -check
         working-directory: ${{ matrix.directory }}
 
       - name: Cache Plugin Dir
@@ -96,12 +96,12 @@ jobs:
 
       - name: Terraform Validate
         id: validate
-        run: terraform validate --no-color
+        run: terraform validate -no-color
         working-directory: ${{ matrix.directory }}
 
       - name: Terraform Plan
         id: plan
-        run: terraform plan --no-color
+        run: terraform plan -no-color
         working-directory: ${{ matrix.directory }}
 
       - name: Terraform Outputs
