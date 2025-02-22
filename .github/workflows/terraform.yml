@@ -49,7 +49,7 @@ jobs:
   terraform-ci:
     needs: detect-changes
     runs-on: ubuntu-latest
-    if: github.head_ref != '' && ${{ needs.detect-changes.outputs.changed_dirs != '[]' }}
+    if: needs.pr-check.outputs.number == null && ${{ needs.detect-changes.outputs.changed_dirs != '[]' }}
     strategy:
       matrix:
         directory: ${{ fromJson(needs.detect-changes.outputs.changed_dirs) }}
@@ -114,7 +114,6 @@ jobs:
 
       - name: Terraform Outputs
         uses: actions/github-script@v7
-        if: github.event_name == 'pull_request'
         env:
           PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
         with:
@@ -193,7 +192,7 @@ jobs:
     strategy:
       matrix:
         directory: ${{ fromJson(needs.detect-changes.outputs.changed_dirs) }}
-    if: github.head_ref != '' && ${{ needs.detect-changes.outputs.changed_dirs != '[]' }}
+    if: needs.pr-check.outputs.number == null && ${{ needs.detect-changes.outputs.changed_dirs != '[]' }}
 
     steps:
       - name:
