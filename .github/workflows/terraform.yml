@@ -5,8 +5,6 @@ env:
 
 on:
   pull_request:
-    branches: 
-      - main
     paths: 
       - "aws-account-management/**/*.tf"
   push:
@@ -49,7 +47,7 @@ jobs:
   terraform-ci:
     needs: detect-changes
     runs-on: ubuntu-latest
-    if: needs.pr-check.outputs.number == null && ${{ needs.detect-changes.outputs.changed_dirs != '[]' }}
+    if: github.event_name == 'pull_request' && ${{ needs.detect-changes.outputs.changed_dirs != '[]' }}
     strategy:
       matrix:
         directory: ${{ fromJson(needs.detect-changes.outputs.changed_dirs) }}
@@ -192,7 +190,7 @@ jobs:
     strategy:
       matrix:
         directory: ${{ fromJson(needs.detect-changes.outputs.changed_dirs) }}
-    if: needs.pr-check.outputs.number == null && ${{ needs.detect-changes.outputs.changed_dirs != '[]' }}
+    if: github.event_name == 'pull_request' && ${{ needs.detect-changes.outputs.changed_dirs != '[]' }}
 
     steps:
       - name:
