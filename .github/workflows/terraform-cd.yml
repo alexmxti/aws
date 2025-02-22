@@ -7,8 +7,6 @@ on:
   push:
     branches:
       - main
-      
-  workflow_dispatch:
 
 permissions:
   contents: write
@@ -24,14 +22,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
-      - name: Set Diff Base
-        run: |
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            echo "BASE=origin/${{ github.base_ref }}" >> $GITHUB_ENV
-          else
-            echo "BASE=${{ github.event.before }}" >> $GITHUB_ENV
-          fi
 
       - name: Detect changed directories
         id: filter
