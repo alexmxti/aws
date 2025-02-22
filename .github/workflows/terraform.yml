@@ -49,7 +49,7 @@ jobs:
   terraform-ci:
     needs: detect-changes
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && ${{ needs.detect-changes.outputs.changed_dirs != '[]' }}
+    if: github.head_ref != '' && ${{ needs.detect-changes.outputs.changed_dirs != '[]' }}
     strategy:
       matrix:
         directory: ${{ fromJson(needs.detect-changes.outputs.changed_dirs) }}
@@ -193,7 +193,7 @@ jobs:
     strategy:
       matrix:
         directory: ${{ fromJson(needs.detect-changes.outputs.changed_dirs) }}
-    if: github.event_name == 'pull_request' && ${{ needs.detect-changes.outputs.changed_dirs != '[]' }}
+    if: github.head_ref != '' && ${{ needs.detect-changes.outputs.changed_dirs != '[]' }}
 
     steps:
       - name:
