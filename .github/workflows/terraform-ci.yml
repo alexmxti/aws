@@ -1,4 +1,4 @@
-name: Terraform CI/CD
+name: Terraform CI
 
 env:
   TERRAFORM_VERSION: "1.10.5"
@@ -7,9 +7,6 @@ on:
   pull_request:
     paths: 
       - "aws-account-management/**/*.tf"
-  push:
-    branches:
-      - main
 
 permissions:
   contents: write
@@ -27,19 +24,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
-      - name: Set Diff Base
-        run: |
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            echo "BASE=origin/${{ github.base_ref }}" >> $GITHUB_ENV
-          else
-            echo "BASE=${{ github.event.before }}" >> $GITHUB_ENV
-          fi
 
       - name: Detect changed directories
         id: filter
         run: |
-          DIRS=$(git diff --diff-filter=d --name-only $BASE HEAD | grep '/' | grep -vE '^\.+' | cut -d/ -f1 | sort -u | jq -R -s -c 'split("\n")[:-1]')
+          DIRS=$(git diff --diff-filter=d --name-only origin/${{ github.base_ref }} \
+          | grep '/' | grep -vE '^\.+' | \cut -d/ -f1 | sort -u | jq -R -s -c 'split("\n")[:-1]')
           echo "Detected changes in: $DIRS"
           echo "directories=$DIRS" >> $GITHUB_ENV
           echo "directories=$DIRS" >> $GITHUB_OUTPUT
@@ -207,39 +197,4 @@ jobs:
           git-push: "true"
           git-commit-message: "docs: update README"
 
-  terraform-deploy:
-    needs: detect-changes
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    strategy:
-      matrix:
-        directory: ${{ fromJson(needs.detect-changes.outputs.changed_dirs) }}
-
-    steps:
-      - name: Checkout GitHub Repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          role-session-name: ${{ secrets.AWS_ROLE_SESSION_NAME }}
-          aws-region: ${{ secrets.AWS_REGION }}
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: ${{ env.TERRAFORM_VERSION }}
-
-      - name: Terraform Init
-        run: terraform init
-        working-directory: ${{ matrix.directory }}
-
-      - name: Terraform Apply
-        run: terraform apply -auto-approve -input=false
-        working-directory: ${{ matrix.directory }}
         
